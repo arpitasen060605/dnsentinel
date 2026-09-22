@@ -13,6 +13,11 @@ normal_domains = [
 
 subdomains = ["www", "mail", "api", "cdn", "static", ""]
 
+infected_ips = ["192.168.1.50", "192.168.1.51"]
+
+def infected_ip():
+    return random.choice(infected_ips)
+
 def random_encoded_string(length):
     charset= string.ascii_lowercase + string.digits
     return ''.join(random.choice(charset) for _ in range(length))
@@ -48,7 +53,7 @@ def generate_dataset(num_normal=200, num_tunnel=50, filename="dns_dataset.csv"):
     for i in range(num_tunnel):
         rows.append({
             "timestamp": (base_time + timedelta(seconds=i*2)).strftime("%Y-%m-%d %H:%M:%S"),
-            "source_ip": random_ip(),
+            "source_ip": infected_ip(),
             "domain":generate_tunnel_query(),
             "query_type": random.choice(["TXT", "A", "NULL"]),
             "label": "tunneling"
@@ -62,3 +67,4 @@ def generate_dataset(num_normal=200, num_tunnel=50, filename="dns_dataset.csv"):
 
     print(f"Generate {len(rows)} rows into {filename}")
 generate_dataset()  
+
