@@ -1,4 +1,4 @@
-@"
+
 # DNSentinel
 
 DNS Tunneling Attack Detection & Network Threat Monitoring System
@@ -13,4 +13,3 @@ DNS Tunneling Attack Detection & Network Threat Monitoring System
 - [ ] Phase 4: Incident Logging
 - [ ] Phase 5: Dashboard
 - [ ] Phase 6: Testing and Validation
-"@ | Set-Content README.md
