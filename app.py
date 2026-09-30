@@ -53,5 +53,11 @@ def score_query():
         "reasons": reasons
     })
 
+@app.route("/api/incidents")
+def api_incidents():
+    incidents = get_all_incidents()
+    stats = get_dashboard_stats(incidents)
+    return jsonify({"incidents": incidents, "stats": stats})
+
 if __name__ == "__main__":
     app.run(debug=True)

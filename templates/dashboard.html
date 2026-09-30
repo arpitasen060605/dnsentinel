@@ -253,19 +253,19 @@ table {
 <div class="stats-row">
     <div class="stat-card">
         <div class="stat-label">Total queries</div>
-        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-value" id="stat-total">{{ stats.total }}</div>
     </div>
     <div class="stat-card normal">
         <div class="stat-label">Normal</div>
-        <div class="stat-value">{{ stats.normal }}</div>
+        <div class="stat-value" id="stat-normal">{{ stats.normal }}</div>
     </div>
     <div class="stat-card suspicious">
         <div class="stat-label">Suspicious</div>
-        <div class="stat-value">{{ stats.suspicious }}</div>
+        <div class="stat-value" id="stat-suspicious">{{ stats.suspicious }}</div>
     </div>
     <div class="stat-card critical">
         <div class="stat-label">Critical</div>
-        <div class="stat-value">{{ stats.critical }}</div>
+        <div class="stat-value" id="stat-critical">{{ stats.critical }}</div>
     </div>
 </div>
 
@@ -281,7 +281,7 @@ table {
     <div class="severity-bar-row">
         <span class="severity-bar-label">Critical</span>
         <div class="severity-bar-track">
-            <div class="severity-bar-fill"
+            <div class="severity-bar-fill" id="bar-critical"
                  style="width: {{ stats.critical_pct }}%; background: var(--critical);">
             </div>
         </div>
@@ -290,7 +290,7 @@ table {
     <div class="severity-bar-row">
         <span class="severity-bar-label">High</span>
         <div class="severity-bar-track">
-            <div class="severity-bar-fill"
+            <div class="severity-bar-fill" id="bar-high"
                  style="width: {{ stats.high_pct }}%; background: var(--high);">
             </div>
         </div>
@@ -299,7 +299,7 @@ table {
     <div class="severity-bar-row">
         <span class="severity-bar-label">Medium</span>
         <div class="severity-bar-track">
-            <div class="severity-bar-fill"
+            <div class="severity-bar-fill" id="bar-medium"
                  style="width: {{ stats.medium_pct }}%; background: var(--medium);">
             </div>
         </div>
@@ -308,7 +308,7 @@ table {
     <div class="severity-bar-row">
         <span class="severity-bar-label">Low</span>
         <div class="severity-bar-track">
-            <div class="severity-bar-fill"
+            <div class="severity-bar-fill" id="bar-low"
                  style="width: {{ stats.low_pct }}%; background: var(--low);">
             </div>
         </div>
@@ -332,7 +332,7 @@ table {
                 <th>Reasons</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="incidents-body">
             {% for incident in incidents %}
             <tr>
                 <td class="mono">{{ incident.timestamp }}</td>
@@ -372,6 +372,46 @@ table {
             }
         }
     });
+    function severityClass(sev) {
+    return sev;
+}
+
+function updateDashboard() {
+    fetch('/api/incidents')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('stat-total').textContent = data.stats.total;
+            document.getElementById('stat-normal').textContent = data.stats.normal;
+            document.getElementById('stat-suspicious').textContent = data.stats.suspicious;
+            document.getElementById('stat-critical').textContent = data.stats.critical;
+
+            document.getElementById('bar-critical').style.width = data.stats.critical_pct + '%';
+            document.getElementById('bar-high').style.width = data.stats.high_pct + '%';
+            document.getElementById('bar-medium').style.width = data.stats.medium_pct + '%';
+            document.getElementById('bar-low').style.width = data.stats.low_pct + '%';
+
+            const tbody = document.getElementById('incidents-body');
+            tbody.innerHTML = '';
+            data.incidents.forEach(incident => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="mono">${incident.timestamp}</td>
+                    <td class="mono">${incident.source_ip}</td>
+                    <td class="domain-cell">${incident.domain}</td>
+                    <td>${incident.query_type}</td>
+                    <td class="score-cell">${incident.score}/100</td>
+                    <td><span class="severity-pill ${incident.severity}">${incident.severity}</span></td>
+                    <td class="reasons-cell">${incident.reasons ? incident.reasons : "—"}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(err => console.error('Failed to refresh dashboard:', err));
+}
+
+setInterval(updateDashboard, 5000);
+
+
 </script>
 
 </body>
