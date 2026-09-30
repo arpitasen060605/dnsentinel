@@ -21,13 +21,16 @@ grouped = df.groupby(["ip.dst", "base_domain"]).agg(
 print(grouped)
 print()
 
-# Step 4: send each group to the /score endpoint
+
 for _, row in grouped.iterrows():
     payload = {
         "entropy": row["avg_entropy"],
         "query_length": row["avg_query_length"],
         "query_frequency": row["query_frequency"],
-        "unique_subdomain": row["unique_subdomain"]
+        "unique_subdomain": row["unique_subdomain"],
+        "source_ip": row["ip.dst"],
+        "domain": row["base_domain"],
+        "query_type": "TXT"
     }
     response = requests.post("http://127.0.0.1:5000/score", json=payload)
     result = response.json()

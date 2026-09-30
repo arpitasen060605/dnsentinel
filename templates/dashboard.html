@@ -277,23 +277,44 @@ table {
     <div class="panel">
         <h2>Severity breakdown</h2>
         <div class="severity-bars">
-            <div class="severity-bar-row">
-                <span class="severity-bar-label">Critical</span>
-                <div class="severity-bar-track"><div class="severity-bar-fill" style="width: {{ stats.critical_pct }}%; background: var(--critical);"></div></div>
-            </div>
-            <div class="severity-bar-row">
-                <span class="severity-bar-label">High</span>
-                <div class="severity-bar-track"><div class="severity-bar-fill" style="width: {{ stats.high_pct }}%; background: var(--high);"></div></div>
-            </div>
-            <div class="severity-bar-row">
-                <span class="severity-bar-label">Medium</span>
-                <div class="severity-bar-track"><div class="severity-bar-fill" style="width: {{ stats.medium_pct }}%; background: var(--medium);"></div></div>
-            </div>
-            <div class="severity-bar-row">
-                <span class="severity-bar-label">Low</span>
-                <div class="severity-bar-track"><div class="severity-bar-fill" style="width: {{ stats.low_pct }}%; background: var(--low);"></div></div>
+
+    <div class="severity-bar-row">
+        <span class="severity-bar-label">Critical</span>
+        <div class="severity-bar-track">
+            <div class="severity-bar-fill"
+                 style="width: {{ stats.critical_pct }}%; background: var(--critical);">
             </div>
         </div>
+    </div>
+
+    <div class="severity-bar-row">
+        <span class="severity-bar-label">High</span>
+        <div class="severity-bar-track">
+            <div class="severity-bar-fill"
+                 style="width: {{ stats.high_pct }}%; background: var(--high);">
+            </div>
+        </div>
+    </div>
+
+    <div class="severity-bar-row">
+        <span class="severity-bar-label">Medium</span>
+        <div class="severity-bar-track">
+            <div class="severity-bar-fill"
+                 style="width: {{ stats.medium_pct }}%; background: var(--medium);">
+            </div>
+        </div>
+    </div>
+
+    <div class="severity-bar-row">
+        <span class="severity-bar-label">Low</span>
+        <div class="severity-bar-track">
+            <div class="severity-bar-fill"
+                 style="width: {{ stats.low_pct }}%; background: var(--low);">
+            </div>
+        </div>
+    </div>
+
+</div>
     </div>
 </div>
 
@@ -320,8 +341,7 @@ table {
                 <td>{{ incident.query_type }}</td>
                 <td class="score-cell">{{ incident.score }}/100</td>
                 <td><span class="severity-pill {{ incident.severity }}">{{ incident.severity }}</span></td>
-                <td class="reasons-cell">{{ incident.reasons | join(", ") if incident.reasons else "—" }}</td>
-            </tr>
+                <td class="reasons-cell">{{ incident.reasons if incident.reasons else "—" }}</td>            </tr>
             {% endfor %}
         </tbody>
     </table>
