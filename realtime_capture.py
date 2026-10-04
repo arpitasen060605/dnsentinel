@@ -1,21 +1,29 @@
 from scapy.all import sniff, DNS, DNSQR, IP
 from collections import defaultdict
 import requests
+import time
 from feature_extraction import calculate_entropy, get_query_length, get_base_domain, get_subdomain_label
 
 MY_IP = "192.168.1.9"  # only track queries from your own machine
 
-# tracker[(source_ip, base_domain)] = {"count": int, "subdomains": set()}
 tracker = defaultdict(lambda: {"count": 0, "subdomains": set()})
+last_seen = {}
+DEDUP_WINDOW = 2
 
 def handle_packet(packet):
     try:
         if packet.haslayer(DNS) and packet.haslayer(DNSQR) and packet.haslayer(IP):
             src_ip = packet[IP].src
             if src_ip != MY_IP:
-                return  # skip router/duplicate noise
+                return
 
             query_name = packet[DNSQR].qname.decode('utf-8').rstrip('.')
+
+            dedup_key = (src_ip, query_name)
+            now = time.time()
+            if dedup_key in last_seen and (now - last_seen[dedup_key]) < DEDUP_WINDOW:
+                return  # seen this exact query too recently, skip
+            last_seen[dedup_key] = now
 
             base_domain = get_base_domain(query_name)
             subdomain_label = get_subdomain_label(query_name)

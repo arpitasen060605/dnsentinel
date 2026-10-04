@@ -24,6 +24,15 @@ def classify_severity(score):
     else:
         return "LOW"
 
+def get_recommended_action(severity):
+    actions = {
+        "CRITICAL": "Block domain immediately and isolate the source host for investigation.",
+        "HIGH": "Investigate source host and monitor domain closely. Consider blocking.",
+        "MEDIUM": "Flag for review. Monitor for repeated activity from this source.",
+        "LOW": "No action required. Continue routine monitoring."
+    }
+    return actions.get(severity, "No action required.")
+
 if __name__ == "__main__":
     score, reasons = calculate_risk_score(entropy=3.6, query_length=28, query_frequency=12, unique_subdomain=10)
     severity = classify_severity(score)

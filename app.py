@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify
-from detection_engine import calculate_risk_score, classify_severity
+from detection_engine import calculate_risk_score, classify_severity, get_recommended_action
 from flask import Flask, request, jsonify, render_template
 from database import init_db, insert_incident, get_all_incidents
 from datetime import datetime
+import csv
+import io
+from flask import Response
 
 app = Flask(__name__)
 init_db()
@@ -58,6 +61,41 @@ def api_incidents():
     incidents = get_all_incidents()
     stats = get_dashboard_stats(incidents)
     return jsonify({"incidents": incidents, "stats": stats})
+
+@app.route("/export/csv")
+def export_csv():
+    incidents = get_all_incidents()
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    writer.writerow([
+        "Incident ID", "Timestamp", "Source IP", "Domain", "Query Type",
+        "Entropy", "Query Frequency", "Risk Score", "Severity",
+        "Detection Reasons", "Recommended Action"
+    ])
+    
+    for incident in incidents:
+        writer.writerow([
+            incident["incident_id"],
+            incident["timestamp"],
+            incident["source_ip"],
+            incident["domain"],
+            incident["query_type"],
+            round(incident["entropy"], 3),
+            incident["query_frequency"],
+            incident["score"],
+            incident["severity"],
+            incident["reasons"],
+            get_recommended_action(incident["severity"])
+        ])
+    
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=dnsentinel_incident_report.csv"}
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
