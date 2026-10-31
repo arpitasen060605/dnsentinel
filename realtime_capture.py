@@ -4,7 +4,7 @@ import requests
 import time
 from feature_extraction import calculate_entropy, get_query_length, get_base_domain, get_subdomain_label
 
-MY_IP = "192.168.1.9"  # only track queries from your own machine
+MY_IP = "192.168.1.9"  # only track queries from your
 
 tracker = defaultdict(lambda: {"count": 0, "subdomains": set()})
 last_seen = {}
@@ -22,7 +22,7 @@ def handle_packet(packet):
             dedup_key = (src_ip, query_name)
             now = time.time()
             if dedup_key in last_seen and (now - last_seen[dedup_key]) < DEDUP_WINDOW:
-                return  # seen this exact query too recently, skip
+                return  
             last_seen[dedup_key] = now
 
             base_domain = get_base_domain(query_name)
